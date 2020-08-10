@@ -16,3 +16,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/artisan-test', function () {
+    Artisan::queue('email:send', [
+        'user' => 1, '--queue' => 'default'
+    ]);
+
+ //    Artisan::queue('email:send', [
+ //    	'user' => 1, '--queue' => 'default'
+	// ])->onConnection('redis')->onQueue('commands');
+});

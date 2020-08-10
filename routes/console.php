@@ -2,6 +2,8 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use App\DripEmailer;
+use App\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +19,11 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
+
+Artisan::command('build {project}', function ($project) {
+    $this->info("Building {$project}!");
+})->describe('Build the project');
+
+Artisan::command('email:send {user}', function (DripEmailer $drip, $user) {
+    $drip->send(User::find($user));
+});
