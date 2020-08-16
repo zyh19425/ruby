@@ -5,9 +5,14 @@ namespace App\Listeners;
 use App\Events\OrderShipped;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class SendShipmentNotification implements ShouldQueue
 {
+    public $to;
+    public $subject;
+
     /**
      * Create the event listener.
      *
@@ -15,7 +20,8 @@ class SendShipmentNotification implements ShouldQueue
      */
     public function __construct()
     {
-        //
+        $this->to = '510573690@qq.com';
+        $this->subject = 'test';
     }
 
     /**
@@ -26,7 +32,12 @@ class SendShipmentNotification implements ShouldQueue
      */
     public function handle(OrderShipped $event)
     {
-        //
+        $to = $this->to;
+        $subject = $this->subject;
+        Mail::send('emails.ship', ['content' => $event], 
+            function($event) use ($to, $subject){
+            $event->to($to)->subject($subject);
+        });
     }
 
     /**
@@ -34,31 +45,31 @@ class SendShipmentNotification implements ShouldQueue
      *
      * @var string|null
      */
-    public $connection = 'sqs';
+    // public $connection = 'sqs';
 
     /**
      * 任务将被发送到的队列的名称
      *
      * @var string|null
      */
-    public $queue = 'listeners';
+    // public $queue = 'listeners';
 
     /**
      * 任务被处理的延迟时间（秒）
      *
      * @var int
      */
-    public $delay = 60;
+    // public $delay = 60;
 
     /**
      * 确定监听器是否应加入队列
      *
-     * @param  \App\Events\OrderPlaced  $event
+     * @param  \App\Events\OrderShipped  $event
      * @return bool
      */
-    public function shouldQueue(OrderPlaced $event)
+    public function shouldQueue(OrderShipped $event)
     {
-        return $event->order->subtotal >= 5000;
+        return $event->order->name >= 5000;
     }
 
     /**
@@ -70,6 +81,7 @@ class SendShipmentNotification implements ShouldQueue
      */
     public function failed(OrderShipped $event, $exception)
     {
-        //
+        $order_id = $event->order->id;
+        Log::warning($order_id.' failed.');
     }
 }
